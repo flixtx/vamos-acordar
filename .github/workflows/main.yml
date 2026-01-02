@@ -1,22 +1,35 @@
-name: Keep HuggingFace Space Awake
+name: Keep Multiple Sites Awake
 
 on:
   schedule:
-    - cron: "*/5 * * * *"   # executa a cada 5 minutos
+    - cron: "*/5 * * * *"
   workflow_dispatch:
 
 jobs:
   ping:
     runs-on: ubuntu-latest
     steps:
-      - name: Ping HuggingFace Space
+      - name: Ping Multiple Sites
         run: |
-          URL="https://aiostrem.onrender.com/stremio/configure"
-          echo "Pingando $URL ..."
-          http_code=$(curl -s -o /dev/null -w "%{http_code}" "$URL")
-
-          if [ "$http_code" -eq 200 ] || [ "$http_code" -eq 302 ] || [ "$http_code" -eq 307 ]; then
-            echo "Space está online! Código HTTP: $http_code"
-          else
-            echo "O Space respondeu com código HTTP: $http_code"
-          fi
+          # Array de URLs para monitorar
+          SITES=(
+            "https://aiostrem.onrender.com/stremio/configure"
+            "https://flixtvon-aiostremio.hf.space/stremio/configure"
+            "https://streamflixapi.brunoflix9.workers.dev"
+          )
+          
+          for URL in "${SITES[@]}"; do
+            echo "======================================="
+            echo "🔍 Pingando: $URL"
+            http_code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 "$URL")
+            
+            if [ "$http_code" -eq 200 ] || [ "$http_code" -eq 302 ] || [ "$http_code" -eq 307 ] || [ "$http_code" -eq 403 ]; then
+              echo "✅ Online! Código HTTP: $http_code"
+            else
+              echo "❌ Offline ou problema! Código: $http_code"
+            fi
+            echo ""
+            sleep 2  # Pequena pausa entre requests
+          done
+          
+          echo "✅ Todos os sites foram verificados!"
