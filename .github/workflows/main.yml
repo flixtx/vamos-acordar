@@ -1,12 +1,18 @@
-name: Keep Multiple Sites Awake
+name: Manter Múltiplos Sites Ativos
 
 on:
   schedule:
     - cron: "*/5 * * * *"
   workflow_dispatch:
 
+env:
+  MAX_RETRIES: 3
+  RETRY_DELAY: 5
+  TIMEOUT_SECONDS: 30
+  ACCEPTED_CODES: "200 302 307 403"
+
 jobs:
-  ping-sites:
+  verificar-sites:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -17,25 +23,33 @@ jobs:
           "https://flixtvon-chatgpt-v1.hf.space"
         ]
     steps:
-      - name: Ping ${{ matrix.site }}
+      - name: Verificar ${{ matrix.site }}
         run: |
-          echo "🔍 Pingando: ${{ matrix.site }}"
+          echo "🔍 Verificando: ${{ matrix.site }}"
           
-          # Tenta 3 vezes
-          for i in {1..3}; do
-            echo "Tentativa $i de 3..."
-            http_code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 "${{ matrix.site }}")
+          for ((i=1; i<=$MAX_RETRIES; i++)); do
+            echo "Tentativa $i de $MAX_RETRIES..."
             
-            if [ "$http_code" -eq 200 ] || [ "$http_code" -eq 302 ] || [ "$http_code" -eq 307 ] || [ "$http_code" -eq 403 ]; then
-              echo "✅ Online! Código HTTP: $http_code"
+            inicio=$(date +%s%3N)
+            http_code=$(curl -s -o /dev/null \
+              -w "%{http_code}" \
+              --max-time $TIMEOUT_SECONDS \
+              -H "User-Agent: GitHub-Actions-Ping/1.0" \
+              "${{ matrix.site }}")
+            fim=$(date +%s%3N)
+            tempo_resposta=$((fim - inicio))
+            
+            if [[ " $ACCEPTED_CODES " =~ " $http_code " ]]; then
+              echo "✅ Sucesso! HTTP: $http_code | Tempo de Resposta: ${tempo_resposta}ms"
               exit 0
             else
-              echo "❌ Falhou com código: $http_code"
-              if [ $i -lt 3 ]; then
-                sleep 5
+              echo "❌ Falhou com HTTP: $http_code | Tempo de Resposta: ${tempo_resposta}ms"
+              if [ $i -lt $MAX_RETRIES ]; then
+                echo "Aguardando $RETRY_DELAY segundos antes de tentar novamente..."
+                sleep $RETRY_DELAY
               fi
             fi
           done
           
-          echo "⚠️ Falha após 3 tentativas"
+          echo "⚠️ Todas as $MAX_RETRIES tentativas falharam para ${{ matrix.site }}"
           exit 1
