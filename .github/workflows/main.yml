@@ -17,10 +17,10 @@ jobs:
     strategy:
       matrix:
         site: [
-          "https://stremio-addonproxy.onrender.com/",
+          "https://stremio-addonproxy.onrender.com",
           "https://aiostrem.onrender.com/stremio/configure", 
           "https://streamflixapi.brunoflix9.workers.dev",
-          ""
+          "https://da5f663b4690-skyflixfork16.baby-beamup.club"
         ]
     steps:
       - name: Verificar ${{ matrix.site }}
