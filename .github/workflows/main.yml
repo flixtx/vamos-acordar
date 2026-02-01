@@ -17,10 +17,10 @@ jobs:
     strategy:
       matrix:
         site: [
-          "https://flixtvon-aiolist.hf.space",
-          "https://flixtvon-aiostremio.hf.space/stremio/configure", 
+          "https://stremio-addonproxy.onrender.com/",
+          "https://aiostrem.onrender.com/stremio/configure", 
           "https://streamflixapi.brunoflix9.workers.dev",
-          "https://flixtvon-chatgpt-v1.hf.space"
+          ""
         ]
     steps:
       - name: Verificar ${{ matrix.site }}
