@@ -18,7 +18,7 @@ jobs:
       matrix:
         site: [
           "https://stremthru.koyeb.app",
-          "https://tmdb--tmdb--v6yfmdzq5nrb.code.run/configure", 
+          "https://tmdb--tmdb--v6yfmdzq5nrb.code.run", 
           "https://fenixflix-1m8m.onrender.com",
           "https://betor.vercel.app"
         ]
