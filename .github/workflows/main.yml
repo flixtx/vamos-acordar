@@ -19,7 +19,7 @@ jobs:
         site: [
           "https://stremthru.koyeb.app",
           "https://tmdb--tmdb--v6yfmdzq5nrb.code.run", 
-          "https://94c8cb9f702d-brazuca-torrents.baby-beamup.club/configure",
+          "https://fenixflix-1m8m.onrender.com",
           "https://betor.vercel.app"
         ]
     steps:
